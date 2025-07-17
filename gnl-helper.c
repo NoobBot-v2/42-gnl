@@ -20,6 +20,7 @@
 typedef struct s_gnl_state {
     char *buf;
     int buf_bytes;//to change to size_t
+    int initialized;
 } t_gnl_state;
 
 static t_gnl_state buf_store;

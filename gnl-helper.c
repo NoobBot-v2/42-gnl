@@ -13,39 +13,29 @@
 
 //NOTE
 //Control it by the bytes read and not by NULL terminators
-
+# include <stdlib.h>
+# include <unistd.h>
+# include <stdio.h>
 #define BUFFER 42
 #define FD 1024
 
 typedef struct s_gnl_state {
     char *buf;
-    int buf_bytes;//to change to size_t
-    int initialized;
+    size_t buf_bytes;
+    int EOF_reached;
 } t_gnl_state;
 
 static t_gnl_state buf_store;
-//ssize_t read(int fd, void buf[.count], size_t count);
-//change return type to ssize_t
-int *ft_read(int fd)
-{
-    char *new_buf;
-    int read_bytes;
 
-    new_buf = (char *)malloc(BUFFER + 1);
-    if (!new_buf)
-        return ('\0');//to change to NULL
-    read_bytes = read(fd, new_buf, BUFFER);
-    if (read_bytes > 0)
-    {
-        ft_store_buffer(fd, read_bytes, new_buf);
-        free(new_buf);
-    }
-    return (read_bytes);
-}
+void ft_store_buffer(size_t read_bytes, char *new_buf);
+char *ft_strjoin(char *src, size_t src_byte, char *dest, size_t dest_byte);
+char *ft_substring(char *src, size_t start, size_t bytes);
+ssize_t ft_read(int fd);
+char *ft_get_line();
 
-void ft_store_buffer(int fd, int read_bytes, char *new_buf)
+void ft_store_buffer(size_t read_bytes, char *new_buf)
 {
-    int index;//change to size_t
+    size_t index;
     char *temp_buf;
 
     index = 0;
@@ -53,7 +43,7 @@ void ft_store_buffer(int fd, int read_bytes, char *new_buf)
     {
         buf_store.buf = (char *)malloc(read_bytes);
         if (!buf_store.buf)
-            buf_store.buf = '\0';//change to NULL
+            return;
         else
             while (index < read_bytes)
             {
@@ -71,48 +61,68 @@ void ft_store_buffer(int fd, int read_bytes, char *new_buf)
     buf_store.buf_bytes += read_bytes;
 }
 
-char *ft_strjoin(char *src, int src_byte, char *dest, int dest_byte)
+//ssize_t read(int fd, void buf[.count], size_t count);
+ssize_t ft_read(int fd)
+{
+    char *new_buf;
+    ssize_t read_bytes;
+
+    new_buf = (char *)malloc(BUFFER + 1);
+    if (!new_buf)
+        return (-1);
+    read_bytes = read(fd, new_buf, BUFFER);
+    if (read_bytes > 0)
+    {
+        ft_store_buffer((size_t)read_bytes, new_buf);
+        free(new_buf);
+    }
+    return (read_bytes);
+}
+
+char *ft_strjoin(char *src, size_t src_byte, char *dest, size_t dest_byte)
 {
     char *temp_buf;
-    int index;//change to size_t
+    size_t index;
 
     temp_buf = (char *)malloc(src_byte + dest_byte);
     if (!temp_buf)
-        return ('\0');//To change to NULL
+        return (NULL);
     index = 0;
     while(index < dest_byte)
     {
         temp_buf[index] = dest[index];
         index++;
     }
-    while(index < dest_byte + src_byte)
+    index = 0;
+    while (index < src_byte)
     {
-        temp_buf[index] = src[index];
+        temp_buf[dest_byte + index] = src[index];
         index++;
     }
     return (temp_buf);
 }
 
-char *ft_substring(char *src, int start, int bytes)
+char *ft_substring(char *src, size_t start, size_t bytes)
 {
-    int index;
+    size_t index;
     char *temp_buf;
 
-    temp_buf = (char *)malloc(bytes);
+    temp_buf = (char *)malloc(bytes + 1);
     if (!temp_buf)
-        return ('\0');//change to NULL
+        return (NULL);
     index = 0;
     while (index < bytes)
     {
         temp_buf[index] = src[start + index];
         index++;
     }
+    temp_buf[index] = '\0';
     return (temp_buf);
 }
 
 char *ft_get_line()
 {
-    int index;
+    size_t index;
     char *new_line;
     char *temp_buf;
 
@@ -120,7 +130,10 @@ char *ft_get_line()
     while (index < buf_store.buf_bytes)
     {
         if (buf_store.buf[index] == '\n')
+        {
+            index++;
             break;
+        }
         index++;
     }
     new_line = ft_substring(buf_store.buf, 0, index);
@@ -130,4 +143,38 @@ char *ft_get_line()
     buf_store.buf = ft_substring(temp_buf, 0, buf_store.buf_bytes);
     free(temp_buf);
     return (new_line);
+}
+
+char	*get_next_line(int fd)
+{
+    size_t index;
+    ssize_t read_bytes;
+    char *next_line;
+
+    index = 0;
+    read_bytes = 0;
+
+    if (buf_store.EOF_reached == 0)
+    {
+        if (index == buf_store.buf_bytes)
+            read_bytes = ft_read(fd);
+        while (index < buf_store.buf_bytes)
+        {
+            if (buf_store.buf[index] == '\n')
+            {
+                next_line = ft_get_line();
+                return (next_line);
+            }
+            index++;
+        }
+        if (read_bytes == 0)
+        {
+            buf_store.EOF_reached = 1;
+            next_line = ft_substring(buf_store.buf, 0, buf_store.buf_bytes);
+            free(buf_store.buf);
+        }
+        else if (read_bytes == -1)
+            return(NULL);
+    }
+    return (NULL);
 }

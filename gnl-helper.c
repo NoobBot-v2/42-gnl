@@ -76,6 +76,8 @@ ssize_t ft_read(int fd)
         ft_store_buffer((size_t)read_bytes, new_buf);
         free(new_buf);
     }
+    if (read_bytes == 0)
+        free(new_buf);
     return (read_bytes);
 }
 
@@ -145,6 +147,7 @@ char *ft_get_line()
     return (new_line);
 }
 
+//Need to fix the control logic here
 char	*get_next_line(int fd)
 {
     size_t index;
@@ -153,11 +156,12 @@ char	*get_next_line(int fd)
 
     index = 0;
     read_bytes = 0;
-
     if (buf_store.EOF_reached == 0)
-    {
+    {        
         if (index == buf_store.buf_bytes)
             read_bytes = ft_read(fd);
+        if (read_bytes == 0)
+            buf_store.EOF_reached = 1;
         while (index < buf_store.buf_bytes)
         {
             if (buf_store.buf[index] == '\n')
@@ -167,14 +171,10 @@ char	*get_next_line(int fd)
             }
             index++;
         }
-        if (read_bytes == 0)
-        {
-            buf_store.EOF_reached = 1;
-            next_line = ft_substring(buf_store.buf, 0, buf_store.buf_bytes);
-            free(buf_store.buf);
-        }
-        else if (read_bytes == -1)
+        if (read_bytes == -1)
             return(NULL);
     }
+    printf("buf_bytes: %li\n", buf_store.buf_bytes);
     return (NULL);
 }
+

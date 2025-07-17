@@ -1,3 +1,11 @@
 hello\n
 world
 42
+this
+is a test
+of my 42gnl
+with ultraaaaaaaaaaaaaaaaaaaa lonnnnnnnnnnnnnnnngggggggggggggggg buffers
+and maybe tiny
+1
+lines
+okay now its realallllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllonnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnggggggggggggggg

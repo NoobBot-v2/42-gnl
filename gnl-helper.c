@@ -63,7 +63,6 @@ void ft_store_buffer(size_t read_bytes, char *new_buf)
     buf_store.buf_bytes += read_bytes;
 }
 
-//ssize_t read(int fd, void buf[.count], size_t count);
 ssize_t ft_read(int fd)
 {
     char *new_buf;
@@ -150,7 +149,6 @@ char *ft_get_line()
     return (new_line);
 }
 
-//Need to fix the control logic here
 char	*get_next_line(int fd)
 {
     size_t index;

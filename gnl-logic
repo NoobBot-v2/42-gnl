@@ -1,0 +1,35 @@
+//Need to fix the control logic here
+char	*get_next_line(int fd)
+{
+    int index;
+    int read_bytes;
+    char *next_line;
+
+    index = 0;
+    read_bytes = 0;
+    if (buf_store.buf_bytes > 0)//It would only check for a new line if there are bytes left
+        while (index < buf_store.buf_bytes)
+        {
+            if (buf_store.buf[index] == '\n')
+            {
+                next_line = ft_get_line();
+                return (next_line);//If a new line is found, it would return and exit here
+            }
+            index++;
+        }
+    //If it did not exit in the prev while loop, means there are no more new lines, read more data if not EOF
+    if (buf_store.EOF_reached == 0)
+    {
+        //ft_read stores both the buffer and read bytes into the static var buf_store
+        //and also returns the read bytes
+        read_bytes = ft_read(fd);
+        //Consider moving read_bytes == 0 logic into ft_read();
+        if (read_bytes == 0)
+            return('\0');
+        if (read_bytes == -1)
+            return('\0');
+    }
+    //Need to check if there is still the last bit of data not containing '\n' and return the last line.
+    //Finally NULL will be returned if all conditions above have been satisifed, meaning there is no more data
+    return ('\0');
+}

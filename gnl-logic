@@ -21,10 +21,10 @@ char	*get_next_line(int fd)
     int read_bytes;
     char *next_line;
 
-    index = 0;
-    read_bytes = 0;
     while (buf_store.EOF_reached == 0)
     {
+        index = 0;
+        read_bytes = 0;        
         if (buf_store.buf_bytes > 0)//Checks if existing buffer has new line first, and returns it
             while (index < buf_store.buf_bytes)
             {

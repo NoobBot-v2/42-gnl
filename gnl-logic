@@ -1,3 +1,5 @@
+//If there is no new line to return, it has to keep reading until it can return a line
+
 //Need to fix the control logic here
 char	*get_next_line(int fd)
 {

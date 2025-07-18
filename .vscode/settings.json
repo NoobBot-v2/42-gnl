@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "gnl-logic": "c",
+        "unistd.h": "c"
+    }
+}

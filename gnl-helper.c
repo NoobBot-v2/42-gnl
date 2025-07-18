@@ -16,7 +16,9 @@
 # include <stdlib.h>
 # include <unistd.h>
 # include <stdio.h>
-#define BUFFER 42
+#ifndef BUFFER_SIZE
+# define BUFFER_SIZE 42
+#endif
 #define FD 1024
 
 typedef struct s_gnl_state {
@@ -67,10 +69,10 @@ ssize_t ft_read(int fd)
     char *new_buf;
     ssize_t read_bytes;
 
-    new_buf = (char *)malloc(BUFFER + 1);
+    new_buf = (char *)malloc(BUFFER_SIZE + 1);
     if (!new_buf)
         return (-1);
-    read_bytes = read(fd, new_buf, BUFFER);
+    read_bytes = read(fd, new_buf, BUFFER_SIZE);
     if (read_bytes > 0)
     {
         ft_store_buffer((size_t)read_bytes, new_buf);
@@ -108,7 +110,8 @@ char *ft_substring(char *src, size_t start, size_t bytes)
 {
     size_t index;
     char *temp_buf;
-
+    if (bytes == 0)
+        return (NULL);
     temp_buf = (char *)malloc(bytes + 1);
     if (!temp_buf)
         return (NULL);
@@ -152,29 +155,27 @@ char	*get_next_line(int fd)
 {
     size_t index;
     ssize_t read_bytes;
-    char *next_line;
 
-    index = 0;
-    read_bytes = 0;
-    if (buf_store.EOF_reached == 0)
-    {        
-        if (index == buf_store.buf_bytes)
-            read_bytes = ft_read(fd);
-        if (read_bytes == 0)
-            buf_store.EOF_reached = 1;
-        while (index < buf_store.buf_bytes)
-        {
-            if (buf_store.buf[index] == '\n')
+    while (buf_store.EOF_reached == 0)
+    {
+        index = 0;
+        read_bytes = 0;
+        if (buf_store.buf_bytes > 0)
+            while (index < buf_store.buf_bytes)
             {
-                next_line = ft_get_line();
-                return (next_line);
+                if (buf_store.buf[index] == '\n')
+                    return(ft_get_line());
+                index++;
             }
-            index++;
+        read_bytes = ft_read(fd);
+        if (read_bytes == 0)
+        {
+            buf_store.EOF_reached = 1;
+            return(buf_store.buf);
         }
         if (read_bytes == -1)
-            return(NULL);
+            return('\0');
     }
-    printf("buf_bytes: %li\n", buf_store.buf_bytes);
-    return (NULL);
+    return ('\0');
 }
 

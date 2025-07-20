@@ -6,11 +6,12 @@
 /*   By: jsoh <jsoh@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 15:53:37 by jsoh              #+#    #+#             */
-/*   Updated: 2025/07/20 20:26:21 by jsoh             ###   ########.fr       */
+/*   Updated: 2025/07/20 20:54:22 by jsoh             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+#include <stdio.h>
 
 void	ft_store_buffer(size_t r_bytes, char *new_buf, t_gnl_state *g_ste)
 {
@@ -26,6 +27,7 @@ void	ft_store_buffer(size_t r_bytes, char *new_buf, t_gnl_state *g_ste)
 		while (index < r_bytes)
 		{
 			g_ste -> buf[index] = new_buf[index];
+			index++;
 		}
 		g_ste -> buf[index] = '\0';
 	}
@@ -77,6 +79,8 @@ char	*ft_get_line(t_gnl_state *g_ste)
 		index++;
 	}
 	new_line = ft_substr(g_ste -> buf, 0, index);
+	if (!new_line)
+		return (NULL);
 	g_ste -> bytes -= index;
 	temp_buf = ft_substr(g_ste -> buf, index, g_ste -> bytes);
 	free(g_ste -> buf);

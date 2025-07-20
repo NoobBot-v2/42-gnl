@@ -6,7 +6,7 @@
 /*   By: jsoh <jsoh@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 15:53:37 by jsoh              #+#    #+#             */
-/*   Updated: 2025/07/20 16:55:05 by jsoh             ###   ########.fr       */
+/*   Updated: 2025/07/20 17:58:53 by jsoh             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ void	ft_store_buffer(size_t read_bytes, char *new_buf)
 	index = 0;
 	if (g_store.bytes == 0)
 	{
-		g_store.buf = (char *)malloc(read_bytes);
+		g_store.buf = (char *)malloc(read_bytes + 1);
 		if (!g_store.buf)
 			return ;
 		while (index < read_bytes)
@@ -30,6 +30,7 @@ void	ft_store_buffer(size_t read_bytes, char *new_buf)
 			g_store.buf[index] = new_buf[index];
 			index++;
 		}
+		g_store.buf[index] = '\0';
 	}
 	else
 	{
@@ -46,7 +47,7 @@ ssize_t	ft_read(int fd)
 	char	*new_buf;
 	ssize_t	read_bytes;
 
-	new_buf = (char *)malloc(BUFFER_SIZE + 1);
+	new_buf = (char *)malloc(BUFFER_SIZE);
 	if (!new_buf)
 		return (-1);
 	read_bytes = read(fd, new_buf, BUFFER_SIZE);

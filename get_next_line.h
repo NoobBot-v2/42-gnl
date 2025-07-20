@@ -6,7 +6,7 @@
 /*   By: jsoh <jsoh@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 15:53:41 by jsoh              #+#    #+#             */
-/*   Updated: 2025/07/20 16:47:29 by jsoh             ###   ########.fr       */
+/*   Updated: 2025/07/20 17:11:29 by jsoh             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ typedef struct s_gnl_state
 }	t_gnl_state;
 
 void	ft_store_buffer(size_t read_bytes, char *new_buf);
+char	*get_next_line(int fd);
 char	*ft_sjoin(char *src, size_t src_byte, char *dest, size_t dest_byte);
 char	*ft_substr(char *src, size_t start, size_t bytes);
 char	*ft_get_line(void);

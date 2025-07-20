@@ -6,54 +6,111 @@
 /*   By: jsoh <jsoh@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 15:53:37 by jsoh              #+#    #+#             */
-/*   Updated: 2025/07/15 22:53:19 by jsoh             ###   ########.fr       */
+/*   Updated: 2025/07/20 16:17:34 by jsoh             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static char *leftover;
+static t_gnl_state	g_store;
 
-char	*ft_check_newline(char *new_data, char *leftover)
+void	ft_store_buffer(size_t read_bytes, char *new_buf)
 {
 	size_t	index;
-	size_t	len_leftover;
-	char	*line;
-
-	len_leftover = ft_strlen(leftover);
-	while (index < BUFFER_SIZE)
-	{
-		//If end of a line
-		if (new_data[index] = '\n')
-		{
-			line = (char *)malloc(index + len_leftover + 1);
-			if (!line)
-				return (NULL);
-			//Combine leftover and new_data
-			ft_strlcpy(line, leftover, index);
-			ft_strlcat(line, new_data, index + len_leftover + 1);
-			return (line);
-		}
-	}
-	//If it reaches here, store current data into the static variable
-	return (NULL);
-}
-
-//Allowed functions - read, malloc, free
-//ssize_t read(int fd, void buf[.count], size_t count);
-char	*get_next_line(int fd)
-{
-	ssize_t	bytes_read;
-	size_t	index;
-	char	*s1;
+	char	*temp_buf;
 
 	index = 0;
-	s1 = (char *)malloc(BUFFER_SIZE);
-	if (!s1)
-		return (NULL);
-	bytes_read = read(fd, s1, BUFFER_SIZE);
-	if (bytes_read > 0)
+	if (g_store.bytes == 0)
 	{
-
+		g_store.buf = (char *)malloc(read_bytes);
+		if (!g_store.buf)
+			return ;
+		while (index < read_bytes)
+		{
+			g_store.buf[index] = new_buf[index];
+			index++;
+		}
 	}
+	else
+	{
+		temp_buf = ft_strjoin(new_buf, read_bytes, g_store.buf, g_store.bytes);
+		free(g_store.buf);
+		g_store.buf = ft_substring(temp_buf, 0, g_store.bytes + read_bytes);
+		free(temp_buf);
+	}
+	g_store.bytes += read_bytes;
+}
+
+ssize_t	ft_read(int fd)
+{
+	char	*new_buf;
+	ssize_t	read_bytes;
+
+	new_buf = (char *)malloc(BUFFER_SIZE + 1);
+	if (!new_buf)
+		return (-1);
+	read_bytes = read(fd, new_buf, BUFFER_SIZE);
+	if (read_bytes > 0)
+	{
+		ft_store_buffer((size_t)read_bytes, new_buf);
+		free(new_buf);
+	}
+	if (read_bytes == 0)
+	{
+		g_store.eof = 1;
+		free(new_buf);
+	}
+	return (read_bytes);
+}
+
+char	*ft_get_line(void)
+{
+	size_t	index;
+	char	*new_line;
+	char	*temp_buf;
+
+	index = 0;
+	while (index < g_store.bytes)
+	{
+		if (g_store.buf[index] == '\n')
+		{
+			index++;
+			break ;
+		}
+		index++;
+	}
+	new_line = ft_substring(g_store.buf, 0, index);
+	g_store.bytes -= index;
+	temp_buf = ft_substring(g_store.buf, index, g_store.bytes);
+	free(g_store.buf);
+	g_store.buf = ft_substring(temp_buf, 0, g_store.bytes);
+	free(temp_buf);
+	return (new_line);
+}
+
+char	*get_next_line(int fd)
+{
+	size_t	index;
+	ssize_t	read_bytes;
+
+	while (g_store.eof == 0)
+	{
+		index = 0;
+		read_bytes = 0;
+		if (g_store.bytes > 0)
+		{
+			while (index < g_store.bytes)
+			{
+				if (g_store.buf[index] == '\n')
+					return (ft_get_line());
+				index++;
+			}
+		}
+		read_bytes = ft_read(fd);
+		if (read_bytes == 0)
+			return (g_store.buf);
+		if (read_bytes == -1)
+			return (NULL);
+	}
+	return (NULL);
 }

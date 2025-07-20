@@ -6,7 +6,7 @@
 /*   By: jsoh <jsoh@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 15:53:37 by jsoh              #+#    #+#             */
-/*   Updated: 2025/07/20 16:17:02 by jsoh             ###   ########.fr       */
+/*   Updated: 2025/07/20 16:57:44 by jsoh             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,15 +51,14 @@ ssize_t	ft_read(int fd)
 		return (-1);
 	r_bytes = read(fd, new_buf, BUFFER_SIZE);
 	if (r_bytes > 0)
-	{
 		ft_store_buffer((size_t)r_bytes, new_buf, fd);
-		free(new_buf);
-	}
-	if (r_bytes == 0)
+	else if (r_bytes == 0)
 	{
-		g_ste[fd].eof = 1;
+		g_ste[fd].bytes = 0;
 		free(new_buf);
+		return (0);
 	}
+	free(new_buf);
 	return (r_bytes);
 }
 
@@ -93,7 +92,9 @@ char	*get_next_line(int fd)
 	size_t	index;
 	ssize_t	r_bytes;
 
-	while (g_ste[fd].eof == 0)
+	if (g_ste[fd].bytes == 0)
+		r_bytes = ft_read(fd);
+	while (g_ste[fd].bytes)
 	{
 		index = 0;
 		r_bytes = 0;
